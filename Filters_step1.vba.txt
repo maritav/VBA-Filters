@@ -1,0 +1,421 @@
+'Helper function for Checking if a sheet is already exists in the work book'
+
+'Arguments
+
+'WorkSheet_Name: The name of the sheet you want to check whether it exists or not
+
+'Return
+
+'True of False
+
+Function Sheet_Exists(WorkSheet_Name As String) As Boolean
+
+    Dim Work_sheet  As Worksheet
+
+    Sheet_Exists = False
+
+    For Each Work_sheet In ThisWorkbook.Worksheets
+
+       
+
+        If Work_sheet.Name = WorkSheet_Name Then
+
+            Sheet_Exists = True
+
+        End If
+
+    Next
+
+End Function
+
+ 
+
+'Helper function for Adding a new sheet in the work book'
+
+'Arguments
+
+'Sheet_Name: The name of the sheet you want to add to the work book
+
+Function CreateSheet(Sheet_Name As String) As Boolean
+
+    Dim ws          As Worksheet
+
+    Set ws = ThisWorkbook.Sheets.Add(After:= _
+
+        ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
+
+    ws.Name = Sheet_Name
+
+End Function
+
+ 
+
+'Helper function for finding the date difference between the feedback date and today
+
+'Arguments
+
+'D: days, Date1: Feedback Date, Date2: Today's Date
+
+'Return
+
+'The difference between the two dates in days
+
+'Function FeedbackDateDiff()
+
+'
+
+'    Dim Date1 As Date
+
+'    Dim Date2 As Date
+
+'    Dim feedbackResult As Long
+
+'
+
+'    Date1 =
+
+'    Date2 = Date
+
+'
+
+'    feedbackResult = DateDiff("D", Date1, Date2)
+
+'
+
+'End Function
+
+'Main function fro the running button'
+
+Private Sub CommandButton1_Click()
+
+   
+
+    'Variables declaration
+
+    Dim ws_Main As Worksheet, ws_Won As Worksheet, ws_Lost As Worksheet, ws_FurtherFeedbackNeededIdSheet As Worksheet, ws_FurtherFeedbackNeededWdSheet As Worksheet, ws_BlankFeedbackIdSheet As Worksheet, ws_BlankFeedbackWdSheet As Worksheet
+
+    Dim lastRow As Long, j As Long, wonRowIndex As Long, lostRowIndex As Long, furtherFeedbackNeededIdRowIndex As Long, furtherFeedbackNeededWdRowIndex As Long, blankFeedbackIdRowIndex As Long, blankFeedbackWdRowIndex As Long
+
+    Dim firstCellInRow As String, lastCellInRow As String, status As String, typeOfRequest As String, outCome As String, areaOfRequest As String
+
+    Dim mainSheet As String, wonSheet As String, lostSheet As String, furtherFeedbackNeededIdSheet As String, furtherFeedbackNeededWdSheet As String, blankFeedbackIdSheet As String, blankFeedbackWdSheet As String
+
+    Dim firstFutherFeedbackNeededIdCellInRow As String, lastFutherFeedbackNeededIdCellInRow As String
+
+    Dim firstFutherFeedbackNeededWdCellInRow As String, lastFutherFeedbackNeededWdCellInRow As String
+
+    Dim firstBlankFeedbackIdCellInRow As String, lastBlankFeedbackIdCellInRow As String
+
+    Dim firstBlankFeedbackWdCellInRow As String, lastBlankFeedbackWdCellInRow As String
+
+   
+
+    mainSheet = "IWD - RFPs 2020"
+
+    wonSheet = "Won"
+
+    lostSheet = "Lost"
+
+    furtherFeedbackNeededIdSheet = "Further Feedback Needed ID"
+
+    furtherFeedbackNeededWdSheet = "Further Feedback Needed WD"
+
+    blankFeedbackIdSheet = "No Feedback ID"
+
+    blankFeedbackWdSheet = "No Feedback WD"
+
+   
+
+    'Create Won Sheet if it doesn't exist exist'
+
+    If (Sheet_Exists(wonSheet) = False) Then
+
+        CreateSheet (wonSheet)
+
+    End If
+
+   
+
+    'Create Lost Sheet if it doesn't exist'
+
+    If (Sheet_Exists(lostSheet) = False) Then
+
+        CreateSheet (lostSheet)
+
+    End If
+
+   
+
+    'Create Further Feedback Needed ID Sheet if it doesn't exist'
+
+    If (Sheet_Exists(furtherFeedbackNeededIdSheet) = False) Then
+
+        CreateSheet (furtherFeedbackNeededIdSheet)
+
+    End If
+
+   
+
+    'Create Further Feedback Needed WD Sheet if it doesn't exist'
+
+    If (Sheet_Exists(furtherFeedbackNeededWdSheet) = False) Then
+
+        CreateSheet (furtherFeedbackNeededWdSheet)
+
+    End If
+
+   
+
+    'Create Blank Feedback ID Sheet if it doesn't exist'
+
+    If (Sheet_Exists(blankFeedbackIdSheet) = False) Then
+
+        CreateSheet (blankFeedbackIdSheet)
+
+    End If
+
+   
+
+    'Create Blank Feedback WD Sheet if it doesn't exist'
+
+    If (Sheet_Exists(blankFeedbackWdSheet) = False) Then
+
+        CreateSheet (blankFeedbackWdSheet)
+
+    End If
+
+   
+
+    'Clear Won sheet'
+
+    ThisWorkbook.Worksheets(wonSheet).Cells.Clear
+
+   
+
+    'Clear Lost sheet'
+
+    ThisWorkbook.Worksheets(lostSheet).Cells.Clear
+
+   
+
+    'Clear Further Feedback Needed ID sheet'
+
+    ThisWorkbook.Worksheets(furtherFeedbackNeededIdSheet).Cells.Clear
+
+   
+
+    'Clear Further Feedback Needed WD sheet'
+
+    ThisWorkbook.Worksheets(furtherFeedbackNeededWdSheet).Cells.Clear
+
+   
+
+    'Clear Blank Feedback ID sheet'
+
+    ThisWorkbook.Worksheets(blankFeedbackIdSheet).Cells.Clear
+
+   
+
+    'Clear Blank Feedback WD sheet'
+
+    ThisWorkbook.Worksheets(blankFeedbackWdSheet).Cells.Clear
+
+   
+
+    Set ws_Main = ThisWorkbook.Sheets(mainSheet)
+
+    Set ws_Won = ThisWorkbook.Sheets(wonSheet)
+
+    Set ws_Lost = ThisWorkbook.Sheets(lostSheet)
+
+    Set ws_FurtherFeedbackNeededId = ThisWorkbook.Sheets(furtherFeedbackNeededIdSheet)
+
+    Set ws_FurtherFeedbackNeededWd = ThisWorkbook.Sheets(furtherFeedbackNeededWdSheet)
+
+    Set ws_BlankFeedbackId = ThisWorkbook.Sheets(blankFeedbackIdSheet)
+
+    Set ws_BlankFeedbackWd = ThisWorkbook.Sheets(blankFeedbackWdSheet)
+
+   
+
+    'Get how many raws there are in the main sheet'
+
+    lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+
+   
+
+    'This variable will track how many rows there are in the destinaton Won sheet'
+
+    wonRowIndex = 1
+
+   
+
+    'This variable will track how many rows there are in the destinaton Lost sheet'
+
+    lostRowIndex = 1
+
+   
+
+    'This variable will track how many rows there are in the destinaton FurtherFeedbackNeededId sheet'
+
+    furtherFeedbackNeededIdRowIndex = 1
+
+   
+
+    'This variable will track how many rows there are in the destinaton FurtherFeedbackNeededWd sheet'
+
+    furtherFeedbackNeededWdRowIndex = 1
+
+   
+
+    'This variable will track how many rows there are in the destinaton BlankFeedbackId sheet'
+
+    blankFeedbackIdRowIndex = 1
+
+   
+
+    'This variable will track how many rows there are in the destinaton BlankFeedbackWd sheet'
+
+    blankFeedbackWdRowIndex = 1
+
+   
+
+    
+
+    For j = 1 To lastRow        'change loop as required
+
+        firstWonCellInRow = "A" & wonRowIndex
+
+        lastWonCellInRow = "AE" & wonRowIndex
+
+        firstLostCellInRow = "A" & lostRowIndex
+
+        lastLostCellInRow = "AE" & lostRowIndex
+
+        firstFutherFeedbackNeededIdCellInRow = "A" & furtherFeedbackNeededIdRowIndex
+
+        lastFutherFeedbackNeededIdCellInRow = "AE" & furtherFeedbackNeededIdRowIndex
+
+        firstFutherFeedbackNeededWdCellInRow = "A" & furtherFeedbackNeededWdRowIndex
+
+        lastFutherFeedbackNeededWdCellInRow = "AE" & furtherFeedbackNeededWdRowIndex
+
+        firstBlankFeedbackIdCellInRow = "A" & blankFeedbackIdRowIndex
+
+        lastBlankFeedbackIdCellInRow = "AE" & blankFeedbackIdRowIndex
+
+        firstBlankFeedbackWdCellInRow = "A" & blankFeedbackWdRowIndex
+
+        lastBlankFeedbackWdCellInRow = "AE" & blankFeedbackWdRowIndex
+
+       
+
+        
+
+        status = ThisWorkbook.Worksheets(mainSheet).Range("A" & CStr(j)).Value
+
+        typeOfRequest = ThisWorkbook.Worksheets(mainSheet).Range("F" & CStr(j)).Value
+
+        outCome = ThisWorkbook.Worksheets(mainSheet).Range("AD" & CStr(j)).Value
+
+        areaOfRequest = ThisWorkbook.Worksheets(mainSheet).Range("G" & CStr(j)).Value
+
+       
+
+        If (status = "Closed" Or status = "Status") Then
+
+           
+
+            If (typeOfRequest = "New Potential" Or typeOfRequest = "Type of request") Then
+
+               
+
+                If (outCome = "Won " Or outCome = "Outcome") Then
+
+                    ws_Main.Rows(j).EntireRow.Copy ws_Won.Range(firstWonCellInRow & ":" & lastWonCellInRow)
+
+                    wonRowIndex = wonRowIndex + 1
+
+                End If
+
+               
+
+                If (outCome = "Lost" Or outCome = "Outcome") Then
+
+                    ws_Main.Rows(j).EntireRow.Copy ws_Lost.Range(firstLostCellInRow & ":" & lastLostCellInRow)
+
+                    lostRowIndex = lostRowIndex + 1
+
+                End If
+
+               
+
+                If (outCome = "Further Feedback Needed" Or outCome = "Outcome") Then
+
+                    If (areaOfRequest = "ID" Or areaOfRequest = "Area") Then
+
+                        ws_Main.Rows(j).EntireRow.Copy ws_FurtherFeedbackNeededId.Range(firstFutherFeedbackNeededIdCellInRow & ":" & lastFutherFeedbackNeededIdCellInRow)
+
+                        furtherFeedbackNeededIdRowIndex = furtherFeedbackNeededIdRowIndex + 1
+
+                    End If
+
+                   
+
+                    If (areaOfRequest = "WD" Or areaOfRequest = "Area") Then
+
+                        ws_Main.Rows(j).EntireRow.Copy ws_FurtherFeedbackNeededWd.Range(firstFutherFeedbackNeededWdCellInRow & ":" & lastFutherFeedbackNeededWdCellInRow)
+
+                        furtherFeedbackNeededWdRowIndex = furtherFeedbackNeededWdRowIndex + 1
+
+                    End If
+
+                End If
+
+                
+
+                If (outCome = "" Or outCome = "Outcome") Then
+
+                    If (areaOfRequest = "ID" Or areaOfRequest = "Area") Then
+
+                        ws_Main.Rows(j).EntireRow.Copy ws_BlankFeedbackId.Range(firstBlankFeedbackIdCellInRow & ":" & lastBlankFeedbackIdCellInRow)
+
+                        blankFeedbackIdRowIndex = blankFeedbackIdRowIndex + 1
+
+                    End If
+
+                End If
+
+               
+
+                If (outCome = "" Or outCome = "Outcome") Then
+
+                    If (areaOfRequest = "WD" Or areaOfRequest = "Area") Then
+
+                        ws_Main.Rows(j).EntireRow.Copy ws_BlankFeedbackWd.Range(firstBlankFeedbackWdCellInRow & ":" & lastBlankFeedbackWdCellInRow)
+
+                        blankFeedbackWdRowIndex = blankFeedbackWdRowIndex + 1
+
+                    End If
+
+                End If
+
+               
+
+            End If
+
+           
+
+        End If
+
+       
+
+    Next j
+
+   
+
+    MsgBox ("Finished")
+
+   
+
+End Sub
